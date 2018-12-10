@@ -9,6 +9,7 @@ import './main.html';
 //import App from '../imports/ui/App.js';
 
 import "../imports/ui/assets/css/material-dashboard-react.css";
+import '../imports/startup/accounts-config.js';
 
 
 import indexRoutes from "../imports/ui/routes/index.jsx";

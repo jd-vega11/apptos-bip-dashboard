@@ -20,6 +20,9 @@ import Button from "../CustomButtons/Button.jsx";
 
 import headerLinksStyle from "../../assets/jss/material-dashboard-react/components/headerLinksStyle.jsx";
 
+
+import AccountsUIWrapper from './AccountsUIWrapper.js';
+
 class HeaderLinks extends React.Component {
   state = {
     open: false
@@ -162,6 +165,7 @@ class HeaderLinks extends React.Component {
             <p className={classes.linkText}>Profile</p>
           </Hidden>
         </Button>
+        <AccountsUIWrapper/>
       </div>
     );
   }
