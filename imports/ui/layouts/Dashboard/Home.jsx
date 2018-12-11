@@ -19,6 +19,7 @@ import dashboardStyle from "../../assets/jss/material-dashboard-react/layouts/da
 
 //Meteor
 import {Meteor} from 'meteor/meteor';
+import { withTracker } from 'meteor/react-meteor-data';
 
 
 const image = "../../assets/img/sidebar-2.jpg";
@@ -154,6 +155,13 @@ App.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-export default withStyles(dashboardStyle)(App);
+export default withStyles(dashboardStyle)(
+  withTracker(() => {
+    return {
+      currentUser: Meteor.user(),
+    };
+  })(App)
+);
+
 
 
