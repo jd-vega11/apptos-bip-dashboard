@@ -14,6 +14,19 @@
 
  */
 
+ .jumbotron {
+    margin-top: 80px;
+    margin-left: 15%;
+    margin-right: 15%;
+    background-color: #ffffff9e;
+    text-align: center;
+    position: relative;
+    top: 0px;
+  }
+
+  .textLeft {
+      text-align: left;
+  }
 
 a#login-name-link.login-link-text, a#login-sign-in-link.login-link-text{
     

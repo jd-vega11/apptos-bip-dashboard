@@ -12,8 +12,12 @@ import Menu from "@material-ui/icons/Menu";
 // core components
 import HeaderLinks from "./HeaderLinks.jsx";
 import Button from "../CustomButtons/Button.jsx";
+import HeaderLinksUnauthorized from "./HeaderLinksUnauthorized.jsx";
 
 import headerStyle from "../../assets/jss/material-dashboard-react/components/headerStyle.jsx";
+
+//Meteor
+import {Meteor} from 'meteor/meteor';
 
 function Header({ ...props }) {
   function makeBrand() {
@@ -30,30 +34,59 @@ function Header({ ...props }) {
   const appBarClasses = classNames({
     [" " + classes[color]]: color
   });
-  return (
-    <AppBar className={classes.appBar + appBarClasses}>
-      <Toolbar className={classes.container}>
-        <div className={classes.flex}>
-          {/* Here we create navbar brand, based on route name */}
-          <Button color="transparent" href="#" className={classes.title}>
-            {makeBrand()}
-          </Button>
-        </div>
-        <Hidden smDown implementation="css">
-          <HeaderLinks />
-        </Hidden>
-        <Hidden mdUp implementation="css">
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={props.handleDrawerToggle}
-          >
-            <Menu />
-          </IconButton>
-        </Hidden>
-      </Toolbar>
-    </AppBar>
-  );
+
+  if(Meteor.user() !== null){
+    return (
+      <AppBar className={classes.appBar + appBarClasses}>
+        <Toolbar className={classes.container}>
+          <div className={classes.flex}>
+            {/* Here we create navbar brand, based on route name */}
+            <Button color="transparent" href="#" className={classes.title}>
+              {makeBrand()}
+            </Button>
+          </div>
+          <Hidden smDown implementation="css">
+            <HeaderLinks />
+          </Hidden>
+          <Hidden mdUp implementation="css">
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              onClick={props.handleDrawerToggle}
+            >
+              <Menu />
+            </IconButton>
+          </Hidden>
+        </Toolbar>
+      </AppBar>
+    );
+  } else{
+    return (
+      <AppBar className={classes.appBar + appBarClasses}>
+        <Toolbar className={classes.container}>
+          <div className={classes.flex}>
+            {/* Here we create navbar brand, based on route name */}
+            <Button color="transparent" href="#" className={classes.title}>
+              {makeBrand()}
+            </Button>
+          </div>
+          <Hidden smDown implementation="css">
+            <HeaderLinksUnauthorized />
+          </Hidden>
+          <Hidden mdUp implementation="css">
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              onClick={props.handleDrawerToggle}
+            >
+              <Menu />
+            </IconButton>
+          </Hidden>
+        </Toolbar>
+      </AppBar>
+    );
+  }
+  
 }
 
 Header.propTypes = {
