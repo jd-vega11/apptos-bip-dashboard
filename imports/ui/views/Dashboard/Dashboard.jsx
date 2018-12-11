@@ -35,15 +35,35 @@ import { bugs, website, server } from "../../variables/general.jsx";
 import {
   dailySalesChart,
   emailsSubscriptionChart,
-  completedTasksChart
+  completedTasksChart,
+  hours,
+  faresByHour,
+  waitingTimes
 } from "../../variables/charts.jsx";
 
 import dashboardStyle from "../../assets/jss/material-dashboard-react/views/dashboardStyle.jsx";
 
+import firebase from 'firebase/app';
+import 'firebase/firestore';
+import 'firebase/auth';
+
+import { BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from 'recharts';
+
 class Dashboard extends React.Component {
-  state = {
-    value: 0
-  };
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      value:0,
+      clients:[],
+      valets:[],
+      activeServices:0,
+      clientsWaiting:0
+    };
+
+  }
+
   handleChange = (event, value) => {
     this.setState({ value });
   };
@@ -51,6 +71,126 @@ class Dashboard extends React.Component {
   handleChangeIndex = index => {
     this.setState({ value: index });
   };
+
+  componentDidMount()
+  {
+    var config = {
+      apiKey: "AIzaSyCcceQjxBOA2-oG4CJzzDADBaVajmfq_1g",
+      authDomain: "bipapp-mobile-dev.firebaseapp.com",
+      databaseURL: "https://bipapp-mobile-dev.firebaseio.com",
+      projectId: "bipapp-mobile-dev",
+      storageBucket: "bipapp-mobile-dev.appspot.com",
+      messagingSenderId: "138636836135"
+    };
+
+    if (!firebase.apps.length) {
+        firebase.initializeApp(config);
+    }
+   
+
+    this.db = firebase.firestore();
+
+    const me = this;
+
+    this.db.collection("Users")
+        .onSnapshot(function(querySnapshot) {
+            var clients = [];
+            var valets = [];
+            querySnapshot.forEach(function(doc) {
+                if(doc.data().client)
+                {
+                  clients.push(doc);
+                }
+                else
+                {
+                  valets.push(doc)
+                }
+            });
+
+            me.setState({clients: clients, valets:valets});
+            
+        });
+
+    this.db.collection("PickUpServices")
+        .onSnapshot(function(snapshot) {
+
+            var activeServices = 0;
+            var clientsWaiting = 0;
+            snapshot.docChanges().forEach(function(change) {
+                if (change.type === "added") {
+
+                    if(!change.doc.data().approved)
+                    {
+                      activeServices = activeServices + 1;
+                    }
+
+                    if(!change.doc.data().confirmed)
+                    {
+                      clientsWaiting = clientsWaiting + 1;
+                    }
+                    console.log("New req: ", change.doc.data());
+                }
+                if (change.type === "modified") {
+
+                    if(change.doc.data().approved)
+                    {
+                      activeServices = activeServices - 1;
+                    }
+
+                    if(change.doc.data().confirmed)
+                    {
+                      clientsWaiting = clientsWaiting - 1;
+                    }
+                    console.log("New req: ", change.doc.data());
+
+                    console.log("Modified req: ", change.doc.data());
+                }
+                if (change.type === "removed") {
+                    if(!change.doc.data().confirmed)
+                    {
+                      clientsWaiting = clientsWaiting - 1;
+                    }
+
+                    if(!change.doc.data().approved)
+                    {
+                      activeServices = activeServices - 1;
+                    }
+                    console.log("Removed req: ", change.doc.data());
+                }
+            });
+
+            me.setState({activeServices:activeServices,clientsWaiting:clientsWaiting})
+        });
+  /*
+    // Initialize Cloud Firestore through Firebase
+   
+
+    // Disable deprecated features
+    db.settings({
+      timestampsInSnapshots: true
+    });*/
+  }
+
+  componentWillUnmount()
+  {
+    if(this.db)
+    {
+      var unsubscribeUsers = this.db.collection("Users")
+          .onSnapshot(function () {});
+      // ...
+      // Stop listening to changes
+      unsubscribeUsers();
+
+      var unsubscribePickUpServices = this.db.collection("PickUpServices")
+          .onSnapshot(function () {});
+      // ...
+      // Stop listening to changes
+      unsubscribePickUpServices();
+    }
+    
+
+  }
+
   render() {
     const { classes } = this.props;
     return (
@@ -60,67 +200,12 @@ class Dashboard extends React.Component {
             <Card>
               <CardHeader color="warning" stats icon>
                 <CardIcon color="warning">
-                  <Icon>content_copy</Icon>
-                </CardIcon>
-                <p className={classes.cardCategory}>Used Space</p>
-                <h3 className={classes.cardTitle}>
-                  49/50 <small>GB</small>
-                </h3>
-              </CardHeader>
-              <CardFooter stats>
-                <div className={classes.stats}>
-                  <Danger>
-                    <Warning />
-                  </Danger>
-                  <a href="#pablo" onClick={e => e.preventDefault()}>
-                    Get more space
-                  </a>
-                </div>
-              </CardFooter>
-            </Card>
-          </GridItem>
-          <GridItem xs={12} sm={6} md={3}>
-            <Card>
-              <CardHeader color="success" stats icon>
-                <CardIcon color="success">
-                  <Store />
-                </CardIcon>
-                <p className={classes.cardCategory}>Revenue</p>
-                <h3 className={classes.cardTitle}>$34,245</h3>
-              </CardHeader>
-              <CardFooter stats>
-                <div className={classes.stats}>
-                  <DateRange />
-                  Last 24 Hours
-                </div>
-              </CardFooter>
-            </Card>
-          </GridItem>
-          <GridItem xs={12} sm={6} md={3}>
-            <Card>
-              <CardHeader color="danger" stats icon>
-                <CardIcon color="danger">
-                  <Icon>info_outline</Icon>
-                </CardIcon>
-                <p className={classes.cardCategory}>Fixed Issues</p>
-                <h3 className={classes.cardTitle}>75</h3>
-              </CardHeader>
-              <CardFooter stats>
-                <div className={classes.stats}>
-                  <LocalOffer />
-                  Tracked from Github
-                </div>
-              </CardFooter>
-            </Card>
-          </GridItem>
-          <GridItem xs={12} sm={6} md={3}>
-            <Card>
-              <CardHeader color="info" stats icon>
-                <CardIcon color="info">
                   <Accessibility />
                 </CardIcon>
-                <p className={classes.cardCategory}>Followers</p>
-                <h3 className={classes.cardTitle}>+245</h3>
+                <p className={classes.cardCategory}>Clients</p>
+                <h3 className={classes.cardTitle}>
+                  {this.state.clients.length} 
+                </h3>
               </CardHeader>
               <CardFooter stats>
                 <div className={classes.stats}>
@@ -130,144 +215,153 @@ class Dashboard extends React.Component {
               </CardFooter>
             </Card>
           </GridItem>
+          <GridItem xs={12} sm={6} md={3}>
+            <Card>
+              <CardHeader color="info" stats icon>
+                <CardIcon color="info">
+                  <Icon>contact_mail</Icon>
+                </CardIcon>
+                <p className={classes.cardCategory}>Valets</p>
+                <h3 className={classes.cardTitle}>{this.state.valets.length}</h3>
+              </CardHeader>
+              <CardFooter stats>
+                <div className={classes.stats}>
+                  <Update />
+                  Just Updated
+                </div>
+              </CardFooter>
+            </Card>
+          </GridItem>
+          <GridItem xs={12} sm={6} md={3}>
+            <Card>
+              <CardHeader color="success" stats icon>
+                <CardIcon color="success">
+                  <Icon>arrow_upward</Icon>
+                </CardIcon>
+                <p className={classes.cardCategory}>Active Services</p>
+                <h3 className={classes.cardTitle}>{this.state.activeServices}</h3>
+              </CardHeader>
+              <CardFooter stats>
+                <div className={classes.stats}>
+                  <Update />
+                  Just Updated
+                </div>
+              </CardFooter>
+            </Card>
+          </GridItem>
+          <GridItem xs={12} sm={6} md={3}>
+            <Card>
+              <CardHeader color="danger" stats icon>
+                <CardIcon color="danger">
+                  <Icon>schedule</Icon>
+                </CardIcon>
+                <p className={classes.cardCategory}>Clients waiting</p>
+                <h3 className={classes.cardTitle}>{this.state.clientsWaiting}</h3>
+              </CardHeader>
+              <CardFooter stats>
+                <div className={classes.stats}>
+                  <Update />
+                  Just Updated
+                </div>
+              </CardFooter>
+            </Card>
+          </GridItem>
+          
         </GridContainer>
         <GridContainer>
-          <GridItem xs={12} sm={12} md={4}>
+          <GridItem xs={12} sm={12} md={12}>
             <Card chart>
               <CardHeader color="success">
                 <ChartistGraph
                   className="ct-chart"
-                  data={dailySalesChart.data}
-                  type="Line"
-                  options={dailySalesChart.options}
-                  listener={dailySalesChart.animation}
+                  data={hours.data}
+                  type="Bar"
+                  options={hours.options}
+                  responsiveOptions={hours.responsiveOptions}
+                  listener={hours.animation}
                 />
               </CardHeader>
               <CardBody>
-                <h4 className={classes.cardTitle}>Daily Sales</h4>
-                <p className={classes.cardCategory}>
-                  <span className={classes.successText}>
-                    <ArrowUpward className={classes.upArrowCardCategory} /> 55%
-                  </span>{" "}
-                  increase in today sales.
+                <h4 className={classes.cardTitle}>Requests by day hours</h4>
+                <p className={classes.cardCategory}>                  
+                  Last Month
                 </p>
               </CardBody>
               <CardFooter chart>
                 <div className={classes.stats}>
-                  <AccessTime /> updated 4 minutes ago
+                  <AccessTime /> made with historical information
                 </div>
               </CardFooter>
             </Card>
           </GridItem>
-          <GridItem xs={12} sm={12} md={4}>
+          <GridItem xs={12} sm={12} md={12}>
             <Card chart>
               <CardHeader color="warning">
                 <ChartistGraph
                   className="ct-chart"
-                  data={emailsSubscriptionChart.data}
+                  data={faresByHour.data}
                   type="Bar"
-                  options={emailsSubscriptionChart.options}
-                  responsiveOptions={emailsSubscriptionChart.responsiveOptions}
-                  listener={emailsSubscriptionChart.animation}
+                  options={faresByHour.options}
+                  responsiveOptions={faresByHour.responsiveOptions}
+                  listener={faresByHour.animation}
                 />
               </CardHeader>
               <CardBody>
-                <h4 className={classes.cardTitle}>Email Subscriptions</h4>
+                <h4 className={classes.cardTitle}>(COP) Average service cost by hour</h4>
                 <p className={classes.cardCategory}>
-                  Last Campaign Performance
+                  Last Month Aggregate
                 </p>
               </CardBody>
               <CardFooter chart>
                 <div className={classes.stats}>
-                  <AccessTime /> campaign sent 2 days ago
+                  <AccessTime /> made with historical information
                 </div>
               </CardFooter>
             </Card>
           </GridItem>
-          <GridItem xs={12} sm={12} md={4}>
+          <GridItem xs={12} sm={12} md={12}>
             <Card chart>
-              <CardHeader color="danger">
+              <CardHeader color="info">
                 <ChartistGraph
                   className="ct-chart"
-                  data={completedTasksChart.data}
+                  data={waitingTimes.data}
                   type="Line"
-                  options={completedTasksChart.options}
-                  listener={completedTasksChart.animation}
+                  options={waitingTimes.options}
+                  listener={waitingTimes.animation}
                 />
               </CardHeader>
               <CardBody>
-                <h4 className={classes.cardTitle}>Completed Tasks</h4>
+                <h4 className={classes.cardTitle}>Average waiting times (min) by day hours</h4>
                 <p className={classes.cardCategory}>
-                  Last Campaign Performance
+                  Last Month
                 </p>
               </CardBody>
               <CardFooter chart>
                 <div className={classes.stats}>
-                  <AccessTime /> campaign sent 2 days ago
+                  <AccessTime /> made with historical information
                 </div>
               </CardFooter>
             </Card>
           </GridItem>
         </GridContainer>
-        <GridContainer>
-          <GridItem xs={12} sm={12} md={6}>
-            <CustomTabs
-              title="Tasks:"
-              headerColor="primary"
-              tabs={[
-                {
-                  tabName: "Bugs",
-                  tabIcon: BugReport,
-                  tabContent: (
-                    <Tasks
-                      checkedIndexes={[0, 3]}
-                      tasksIndexes={[0, 1, 2, 3]}
-                      tasks={bugs}
-                    />
-                  )
-                },
-                {
-                  tabName: "Website",
-                  tabIcon: Code,
-                  tabContent: (
-                    <Tasks
-                      checkedIndexes={[0]}
-                      tasksIndexes={[0, 1]}
-                      tasks={website}
-                    />
-                  )
-                },
-                {
-                  tabName: "Server",
-                  tabIcon: Cloud,
-                  tabContent: (
-                    <Tasks
-                      checkedIndexes={[1]}
-                      tasksIndexes={[0, 1, 2]}
-                      tasks={server}
-                    />
-                  )
-                }
-              ]}
-            />
-          </GridItem>
+        <GridContainer>          
           <GridItem xs={12} sm={12} md={6}>
             <Card>
               <CardHeader color="warning">
-                <h4 className={classes.cardTitleWhite}>Employees Stats</h4>
+                <h4 className={classes.cardTitleWhite}>Valet Stats</h4>
                 <p className={classes.cardCategoryWhite}>
-                  New employees on 15th September, 2016
+                  Best Valets by costumers rating (last month)
                 </p>
               </CardHeader>
               <CardBody>
                 <Table
                   tableHeaderColor="warning"
-                  tableHead={["ID", "Name", "Salary", "Country"]}
+                  tableHead={["Position", "Name", "Average Rating"]}
                   tableData={[
-                    ["1", "Dakota Rice", "$36,738", "Niger"],
-                    ["2", "Minerva Hooper", "$23,789", "Curaçao"],
-                    ["3", "Sage Rodriguez", "$56,142", "Netherlands"],
-                    ["4", "Philip Chaney", "$38,735", "Korea, South"]
+                    ["1", "Beatriz Navas", "4.87"],
+                    ["2", "Jose Perez ", "4.81"],
+                    ["3", "Mario Hernandez", "4.78"],
+                    ["4", "Maria Perez", "4.6"]
                   ]}
                 />
               </CardBody>
