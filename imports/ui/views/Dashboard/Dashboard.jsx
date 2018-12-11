@@ -38,7 +38,9 @@ import {
   completedTasksChart,
   hours,
   faresByHour,
-  waitingTimes
+  waitingTimes,
+  rankingValets,
+  averageAge
 } from "../../variables/charts.jsx";
 
 import dashboardStyle from "../../assets/jss/material-dashboard-react/views/dashboardStyle.jsx";
@@ -47,19 +49,22 @@ import firebase from 'firebase/app';
 import 'firebase/firestore';
 import 'firebase/auth';
 
-import { BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from 'recharts';
+import { BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Bar } from 'recharts';
 
 class Dashboard extends React.Component {
 
   constructor(props) {
     super(props);
 
+  
     this.state = {
       value:0,
       clients:[],
       valets:[],
       activeServices:0,
-      clientsWaiting:0
+      clientsWaiting:0,
+      averageAge: averageAge.data,
+      genders: []
     };
 
   }
@@ -96,26 +101,97 @@ class Dashboard extends React.Component {
         .onSnapshot(function(querySnapshot) {
             var clients = [];
             var valets = [];
+
+            var averageAgeValet = 0;
+            var averageAgeClient = 0;
+
+            var valetMale = 0;
+            var valetFemale = 0;
+
+            var clientMale = 0;
+            var clientFemale = 0;
+
             querySnapshot.forEach(function(doc) {
                 if(doc.data().client)
                 {
                   clients.push(doc);
+                  if(doc.data().age !== undefined && typeof doc.data().age == 'number')
+                  {
+                    averageAgeClient = averageAgeClient + doc.data().age;
+                  }
+
+                  if(doc.data().gender !== undefined)
+                  {
+                    if(doc.data().gender === "Male") 
+                    {
+                      clientMale = clientMale + 1;
+                    }
+                    else
+                    {
+                      clientFemale = clientFemale + 1;
+                    }
+                  }
+                  
                 }
                 else
                 {
-                  valets.push(doc)
+                  valets.push(doc);
+                  if(doc.data().age != undefined && typeof doc.data().age == 'number')
+                  {
+                    averageAgeValet = averageAgeValet + doc.data().age;
+                  }
+
+                  if(doc.data().gender !== undefined)
+                  {
+                    if(doc.data().gender === "Male") 
+                    {
+                      valetMale = valetMale + 1;
+                    }
+                    else
+                    {
+                      valetFemale = valetFemale + 1;
+                    }
+                  }                  
                 }
             });
 
-            me.setState({clients: clients, valets:valets});
+            //Average ages
+
+            var data = me.state.averageAge;
+            console.log("data", data);
+            console.log("averageAgeClient", averageAgeClient);
+            console.log("averageAgeValet", averageAgeValet);
+
+            if(clients.length > 0 && valets.length > 0)
+            {
+              averageAgeClient = averageAgeClient/clients.length;
+              averageAgeValet = averageAgeValet/valets.length;
+              data = {
+                labels: [
+                  "Valets",
+                  "Clients"
+                ],
+                series: [[averageAgeValet, averageAgeClient]]
+              };
+            } 
+
+            //Genders
+
+            var genders = [
+              {name: 'Valets', Male: valetMale, Female: valetFemale},
+              {name: 'Clients', Male: clientMale, Female: clientFemale}
+            ];
+
+            me.setState({clients: clients, valets:valets, averageAge:data, genders: genders});
+            
             
         });
 
     this.db.collection("PickUpServices")
         .onSnapshot(function(snapshot) {
 
-            var activeServices = 0;
-            var clientsWaiting = 0;
+            var activeServices = me.state.activeServices;
+            var clientsWaiting = me.state.clientsWaiting;
             snapshot.docChanges().forEach(function(change) {
                 if (change.type === "added") {
 
@@ -296,7 +372,7 @@ class Dashboard extends React.Component {
           </GridItem>
           <GridItem xs={12} sm={12} md={12}>
             <Card chart>
-              <CardHeader color="warning">
+              <CardHeader color="success">
                 <ChartistGraph
                   className="ct-chart"
                   data={faresByHour.data}
@@ -321,7 +397,7 @@ class Dashboard extends React.Component {
           </GridItem>
           <GridItem xs={12} sm={12} md={12}>
             <Card chart>
-              <CardHeader color="info">
+              <CardHeader color="warning">
                 <ChartistGraph
                   className="ct-chart"
                   data={waitingTimes.data}
@@ -347,7 +423,7 @@ class Dashboard extends React.Component {
         <GridContainer>          
           <GridItem xs={12} sm={12} md={6}>
             <Card>
-              <CardHeader color="warning">
+              <CardHeader color="info">
                 <h4 className={classes.cardTitleWhite}>Valet Stats</h4>
                 <p className={classes.cardCategoryWhite}>
                   Best Valets by costumers rating (last month)
@@ -357,16 +433,62 @@ class Dashboard extends React.Component {
                 <Table
                   tableHeaderColor="warning"
                   tableHead={["Position", "Name", "Average Rating"]}
-                  tableData={[
-                    ["1", "Beatriz Navas", "4.87"],
-                    ["2", "Jose Perez ", "4.81"],
-                    ["3", "Mario Hernandez", "4.78"],
-                    ["4", "Maria Perez", "4.6"]
-                  ]}
+                  tableData={rankingValets}
                 />
               </CardBody>
             </Card>
           </GridItem>
+          <GridItem xs={12} sm={12} md={6}>
+            <Card chart>
+              <CardHeader color="info">
+                <ChartistGraph
+                  className="ct-chart"
+                  data={this.state.averageAge}
+                  type="Bar"
+                  options={averageAge.options}
+                  responsiveOptions={averageAge.responsiveOptions}
+                  listener={averageAge.animation}
+                />
+              </CardHeader>
+              <CardBody>
+                <h4 className={classes.cardTitle}>Average age</h4>
+                <p className={classes.cardCategory}>
+                  Udated in the last 5 minutes
+                </p>
+              </CardBody>
+              <CardFooter chart>
+                <div className={classes.stats}>
+                  <AccessTime /> made with historical information
+                </div>
+              </CardFooter>
+            </Card>
+            </GridItem>
+            <GridItem xs={12} sm={12} md={6}>
+            <Card chart>
+              <CardHeader color="info">
+                <BarChart width={350} height={211} data={this.state.genders}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="Male" fill="#8884d8" />
+                  <Bar dataKey="Female" fill="#82ca9d" />
+                </BarChart>
+              </CardHeader>
+              <CardBody>
+                <h4 className={classes.cardTitle}>Gender distribution</h4>
+                <p className={classes.cardCategory}>
+                  Udated in the last 5 minutes
+                </p>
+              </CardBody>
+              <CardFooter chart>
+                <div className={classes.stats}>
+                  <AccessTime /> made with historical information
+                </div>
+              </CardFooter>
+            </Card>
+            </GridItem>
         </GridContainer>
       </div>
     );

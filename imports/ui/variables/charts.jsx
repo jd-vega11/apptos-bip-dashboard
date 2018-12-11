@@ -11,6 +11,73 @@ var delays = 80,
 var delays2 = 80,
   durations2 = 500;
 
+// ##############################
+// // // Ranking - Default values
+// #############################
+const rankingValets = [
+                    ["1", "Beatriz Navas", "4.87"],
+                    ["2", "Jose Perez ", "4.81"],
+                    ["3", "Mario Hernandez", "4.78"],
+                    ["4", "Maria Perez", "4.6"]
+                  ];
+
+
+
+// ##############################
+// // // averageAge - Default values
+// #############################
+
+const averageAge = {
+  data: {
+    labels: [
+      "Valets",
+      "Clients"
+    ],
+    series: [[24.5, 27.2]]
+  },
+  options: {
+    axisX: {
+      showGrid: false
+    },
+    low: 0,
+    high: 50,
+    chartPadding: {
+      top: 0,
+      right: 5,
+      bottom: 0,
+      left: 7
+    }
+  },
+  responsiveOptions: [
+    [
+      "screen and (max-width: 640px)",
+      {
+        seriesBarDistance: 5,
+        axisX: {
+          labelInterpolationFnc: function(value) {
+            return value[0];
+          }
+        }
+      }
+    ]
+  ],
+  animation: {
+    draw: function(data) {
+      if (data.type === "bar") {
+        data.element.animate({
+          opacity: {
+            begin: (data.index + 1) * delays2,
+            dur: durations2,
+            from: 0,
+            to: 1,
+            easing: "ease"
+          }
+        });
+      }
+    }
+  }
+};
+
 
 
 // ##############################
@@ -381,5 +448,7 @@ module.exports = {
   completedTasksChart,
   hours,
   faresByHour,
-  waitingTimes
+  waitingTimes,
+  rankingValets,
+  averageAge
 };
