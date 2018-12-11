@@ -11,6 +11,198 @@ var delays = 80,
 var delays2 = 80,
   durations2 = 500;
 
+
+
+// ##############################
+// // // WaitingTimes - Default values
+// #############################
+
+
+  const waitingTimes = {
+  data: {
+     labels: [
+      "00hrs - 6hrs",
+      "6hrs - 9hrs",
+      "9hrs - 11hrs",
+      "11hrs - 12hrs",
+      "12hrs - 14hrs",
+      "14hrs - 16hrs",
+      "16hrs - 18hrs",
+      "18hrs - 21hrs",
+      "21hrs - 00hrs"
+    ],
+    series: [[7.5, 3.2, 4.3, 1.4, 2.8, 4.9, 3.8, 5.4, 6.5]]
+  },
+  options: {
+    lineSmooth: Chartist.Interpolation.cardinal({
+      tension: 0
+    }),
+    low: 0,
+    high: 8, // creative tim: we recommend you to set the high sa the biggest value + something for a better look
+    chartPadding: {
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0
+    }
+  },
+  animation: {
+    draw: function(data) {
+      if (data.type === "line" || data.type === "area") {
+        data.element.animate({
+          d: {
+            begin: 600,
+            dur: 700,
+            from: data.path
+              .clone()
+              .scale(1, 0)
+              .translate(0, data.chartRect.height())
+              .stringify(),
+            to: data.path.clone().stringify(),
+            easing: Chartist.Svg.Easing.easeOutQuint
+          }
+        });
+      } else if (data.type === "point") {
+        data.element.animate({
+          opacity: {
+            begin: (data.index + 1) * delays,
+            dur: durations,
+            from: 0,
+            to: 1,
+            easing: "ease"
+          }
+        });
+      }
+    }
+  }
+};
+
+
+
+// ##############################
+// // // Fares - Default values
+// #############################
+
+const faresByHour = {
+  data: {
+    labels: [
+      "00hrs - 6hrs",
+      "6hrs - 9hrs",
+      "9hrs - 11hrs",
+      "11hrs - 12hrs",
+      "12hrs - 14hrs",
+      "14hrs - 16hrs",
+      "16hrs - 18hrs",
+      "18hrs - 21hrs",
+      "21hrs - 00hrs"
+    ],
+    series: [[21530, 17852, 11300, 23480, 15430, 9870, 16290, 19876, 11772]]
+  },
+  options: {
+    axisX: {
+      showGrid: false
+    },
+    low: 0,
+    high: 24000,
+    chartPadding: {
+      top: 0,
+      right: 5,
+      bottom: 0,
+      left: 7
+    }
+  },
+  responsiveOptions: [
+    [
+      "screen and (max-width: 640px)",
+      {
+        seriesBarDistance: 5,
+        axisX: {
+          labelInterpolationFnc: function(value) {
+            return value[0];
+          }
+        }
+      }
+    ]
+  ],
+  animation: {
+    draw: function(data) {
+      if (data.type === "bar") {
+        data.element.animate({
+          opacity: {
+            begin: (data.index + 1) * delays2,
+            dur: durations2,
+            from: 0,
+            to: 1,
+            easing: "ease"
+          }
+        });
+      }
+    }
+  }
+};
+
+// ##############################
+// // // Hours - Default values
+// #############################
+const hours = {
+  data: {
+    labels: [
+      "00hrs - 6hrs",
+      "6hrs - 9hrs",
+      "9hrs - 11hrs",
+      "11hrs - 12hrs",
+      "12hrs - 14hrs",
+      "14hrs - 16hrs",
+      "16hrs - 18hrs",
+      "18hrs - 21hrs",
+      "21hrs - 00hrs"
+    ],
+    series: [[3, 52, 27, 21, 53, 11, 23, 67, 7]]
+  },
+  options: {
+    axisX: {
+      showGrid: false
+    },
+    low: 0,
+    high: 70,
+    chartPadding: {
+      top: 0,
+      right: 5,
+      bottom: 0,
+      left: 0
+    }
+  },
+  responsiveOptions: [
+    [
+      "screen and (max-width: 640px)",
+      {
+        seriesBarDistance: 5,
+        axisX: {
+          labelInterpolationFnc: function(value) {
+            return value[0];
+          }
+        }
+      }
+    ]
+  ],
+  animation: {
+    draw: function(data) {
+      if (data.type === "bar") {
+        data.element.animate({
+          opacity: {
+            begin: (data.index + 1) * delays2,
+            dur: durations2,
+            from: 0,
+            to: 1,
+            easing: "ease"
+          }
+        });
+      }
+    }
+  }
+};
+
+
 // ##############################
 // // // Daily Sales
 // #############################
@@ -186,5 +378,8 @@ const completedTasksChart = {
 module.exports = {
   dailySalesChart,
   emailsSubscriptionChart,
-  completedTasksChart
+  completedTasksChart,
+  hours,
+  faresByHour,
+  waitingTimes
 };
