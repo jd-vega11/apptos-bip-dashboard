@@ -32,6 +32,8 @@ import CardFooter from "../../components/Card/CardFooter.jsx";
 
 import { bugs, website, server } from "../../variables/general.jsx";
 
+import regression from 'regression';
+
 import {
   dailySalesChart,
   emailsSubscriptionChart,
@@ -49,14 +51,14 @@ import firebase from 'firebase/app';
 import 'firebase/firestore';
 import 'firebase/auth';
 
-import { BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Bar } from 'recharts';
+import { BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Bar, ScatterChart, ZAxis, Scatter } from 'recharts';
 
 class Dashboard extends React.Component {
 
   constructor(props) {
     super(props);
 
-  
+
     this.state = {
       value:0,
       clients:[],
@@ -64,7 +66,9 @@ class Dashboard extends React.Component {
       activeServices:0,
       clientsWaiting:0,
       averageAge: averageAge.data,
-      genders: []
+      genders: [],
+      data01 : [{x: 10, y: 30}, {x: 100, y: 200}],
+      data02 : [{x: 30, y: 20}, {x: 50, y: 180}, {x: 75, y: 240}, {x: 100, y: 100}, {x: 120, y: 190}]
     };
 
   }
@@ -77,6 +81,16 @@ class Dashboard extends React.Component {
     this.setState({ value: index });
   };
 
+  calcularRegresion(){
+    const result = regression.linear([[0, 1], [32, 67], [12, 79]]);
+    const gradient = result.equation[0];
+    const yIntercept = result.equation[1];
+    console.log(gradient, yIntercept)
+    this.setState({
+      data01 : [{x: 0, y: yIntercept}, {x: 5, y: yIntercept + gradient*5}]
+    })
+    return([0,yIntercept,5, yIntercept + gradient*5])
+  }
   componentDidMount()
   {
     var config = {
@@ -91,7 +105,7 @@ class Dashboard extends React.Component {
     if (!firebase.apps.length) {
         firebase.initializeApp(config);
     }
-   
+
 
     this.db = firebase.firestore();
 
@@ -122,7 +136,7 @@ class Dashboard extends React.Component {
 
                   if(doc.data().gender !== undefined)
                   {
-                    if(doc.data().gender === "Male") 
+                    if(doc.data().gender === "Male")
                     {
                       clientMale = clientMale + 1;
                     }
@@ -131,7 +145,7 @@ class Dashboard extends React.Component {
                       clientFemale = clientFemale + 1;
                     }
                   }
-                  
+
                 }
                 else
                 {
@@ -143,7 +157,7 @@ class Dashboard extends React.Component {
 
                   if(doc.data().gender !== undefined)
                   {
-                    if(doc.data().gender === "Male") 
+                    if(doc.data().gender === "Male")
                     {
                       valetMale = valetMale + 1;
                     }
@@ -151,7 +165,7 @@ class Dashboard extends React.Component {
                     {
                       valetFemale = valetFemale + 1;
                     }
-                  }                  
+                  }
                 }
             });
 
@@ -173,7 +187,7 @@ class Dashboard extends React.Component {
                 ],
                 series: [[averageAgeValet, averageAgeClient]]
               };
-            } 
+            }
 
             //Genders
 
@@ -183,6 +197,10 @@ class Dashboard extends React.Component {
             ];
 
             me.setState({clients: clients, valets:valets, averageAge:data, genders: genders});
+
+            me.calcularRegresion().bind(this)
+
+
         });
 
     this.db.collection("PickUpServices")
@@ -206,7 +224,7 @@ class Dashboard extends React.Component {
         });
   /*
     // Initialize Cloud Firestore through Firebase
-   
+
 
     // Disable deprecated features
     db.settings({
@@ -230,7 +248,7 @@ class Dashboard extends React.Component {
       // Stop listening to changes
       unsubscribePickUpServices();
     }
-    
+    calcularRegresion()
 
   }
 
@@ -247,7 +265,7 @@ class Dashboard extends React.Component {
                 </CardIcon>
                 <p className={classes.cardCategory}>Clients</p>
                 <h3 className={classes.cardTitle}>
-                  {this.state.clients.length} 
+                  {this.state.clients.length}
                 </h3>
               </CardHeader>
               <CardFooter stats>
@@ -309,7 +327,7 @@ class Dashboard extends React.Component {
               </CardFooter>
             </Card>
           </GridItem>
-          
+
         </GridContainer>
         <GridContainer>
           <GridItem xs={12} sm={12} md={12}>
@@ -326,7 +344,7 @@ class Dashboard extends React.Component {
               </CardHeader>
               <CardBody>
                 <h4 className={classes.cardTitle}>Requests by day hours</h4>
-                <p className={classes.cardCategory}>                  
+                <p className={classes.cardCategory}>
                   Last Month
                 </p>
               </CardBody>
@@ -387,7 +405,7 @@ class Dashboard extends React.Component {
             </Card>
           </GridItem>
         </GridContainer>
-        <GridContainer>          
+        <GridContainer>
           <GridItem xs={12} sm={12} md={6}>
             <Card>
               <CardHeader color="info">
@@ -442,6 +460,32 @@ class Dashboard extends React.Component {
                   <Bar dataKey="Male" fill="#8884d8" />
                   <Bar dataKey="Female" fill="#82ca9d" />
                 </BarChart>
+              </CardHeader>
+              <CardBody>
+                <h4 className={classes.cardTitle}>Gender distribution</h4>
+                <p className={classes.cardCategory}>
+                  Udated in the last 5 minutes
+                </p>
+              </CardBody>
+              <CardFooter chart>
+                <div className={classes.stats}>
+                  <AccessTime /> made with historical information
+                </div>
+              </CardFooter>
+            </Card>
+            </GridItem>
+            <GridItem xs={12} sm={12} md={6}>
+            <Card chart>
+              <CardHeader color="info">
+                <ScatterChart width={600} height={400} margin={{top: 20, right: 20, bottom: 20, left: 20}}>
+                  <XAxis type="number" dataKey={'x'} name='Tiempo de espera' unit='Min'/>
+                	<YAxis type="number" dataKey={'y'} name='Calificación' unit=':)'/>
+                  <ZAxis range={[100]}/>
+                	<Tooltip cursor={{strokeDasharray: '3 3'}}/>
+                  <Legend/>
+                	<Scatter name='A school' data={this.state.data01} fill='#8884d8' line/>
+                  <Scatter name='B school' data={this.state.data02} fill='#82ca9d'/>
+                </ScatterChart>
               </CardHeader>
               <CardBody>
                 <h4 className={classes.cardTitle}>Gender distribution</h4>
