@@ -211,7 +211,7 @@ class Dashboard extends React.Component {
 
     this.db.collection("PickUpServices")
         .onSnapshot(function(querySnapshot) {
-            
+
             var activeServices = 0;
             var clientsWaiting = 0;
             querySnapshot.forEach(function(doc) {
@@ -224,14 +224,14 @@ class Dashboard extends React.Component {
               {
                 clientsWaiting = clientsWaiting + 1;
               }
-                
+
             });
             me.setState({activeServices:activeServices,clientsWaiting:clientsWaiting})
         });
 
     this.db.collection("DropOffServices")
         .onSnapshot(function(querySnapshot) {
-            
+
             var ratings = [];
             var waitingTimes = [];
 
@@ -243,8 +243,8 @@ class Dashboard extends React.Component {
                 ratings.push(doc.data().valetRating);
                 waitingTimes.push(Math.round(doc.data().confirmationTime) - Math.round(doc.data().creationTime));
               }
-             
-                
+
+
             });
           me.setState({ratings:ratings, waitingTimes:waitingTimes});
           console.log("ratings", ratings);
@@ -292,7 +292,7 @@ class Dashboard extends React.Component {
       // Stop listening to changes
       unsubscribePickUpServices();
     }
-    calcularRegresion()
+    
 
   }
 
