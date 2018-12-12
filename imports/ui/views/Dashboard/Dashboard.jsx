@@ -200,11 +200,9 @@ class Dashboard extends React.Component {
 
             me.setState({clients: clients, valets:valets, averageAge:data, genders: genders});
 
-<<<<<<< HEAD
+
             me.calcularRegresion()
-=======
-            me.calcularRegresion().bind(this);
->>>>>>> a0d3d63e02377f8a15c988571aa779963e1b3c2c
+
 
 
         });
@@ -231,7 +229,7 @@ class Dashboard extends React.Component {
 
     this.db.collection("DropOffServices")
         .onSnapshot(function(querySnapshot) {
-            
+
             var ratings = [];
             var waitingTimes = [];
 
@@ -243,8 +241,8 @@ class Dashboard extends React.Component {
                 ratings.push(doc.data().valetRating);
                 waitingTimes.push(Math.round(doc.data().confirmationTime) - Math.round(doc.data().creationTime));
               }
-             
-                
+
+
             });
           me.setState({ratings:ratings, waitingTimes:waitingTimes});
           console.log("ratings", ratings);
