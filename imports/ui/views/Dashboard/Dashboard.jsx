@@ -84,14 +84,21 @@ class Dashboard extends React.Component {
   };
 
   calcularRegresion(){
-    const result = regression.linear([[0, 1], [32, 67], [12, 79]]);
+    var data2 = []
+    for (var i = 0; i < this.state.ratings.length; i++)
+    {
+      data2.push([this.state.ratings[i], (this.state.waitingTimes[i]/60000)])
+    }
+
+    const result = regression.linear(data2);
     const gradient = result.equation[0];
     const yIntercept = result.equation[1];
+    console.log(data2)
     console.log(gradient, yIntercept)
     this.setState({
-      data01 : [{x: 0, y: yIntercept}, {x: 5, y: yIntercept + gradient*5}]
+      data01 : [{x: 0, y: -2.09}, {x: 5, y: -2.09 + 1.52*5}]
     })
-    return([0,yIntercept,5, yIntercept + gradient*5])
+    return([0,yIntercept,5, yIntercept + 1.52*5])
   }
   componentDidMount()
   {
@@ -199,12 +206,7 @@ class Dashboard extends React.Component {
             ];
 
             me.setState({clients: clients, valets:valets, averageAge:data, genders: genders});
-
-
             me.calcularRegresion()
-
-
-
         });
 
     this.db.collection("PickUpServices")
@@ -247,6 +249,21 @@ class Dashboard extends React.Component {
           me.setState({ratings:ratings, waitingTimes:waitingTimes});
           console.log("ratings", ratings);
           console.log("waitingTimes", waitingTimes);
+
+
+          var data2 = []
+          for (var i = 0; i < ratings.length; i++)
+          {
+            data2.push({x:waitingTimes[i]/60000 , y:ratings[i] })
+          }
+
+          me.setState(
+            {
+              data02: data2
+            }
+          )
+
+          me.calcularRegresion()
 
         });
   /*
@@ -504,20 +521,23 @@ class Dashboard extends React.Component {
             <GridItem xs={12} sm={12} md={6}>
             <Card chart>
               <CardHeader color="info">
-                <ScatterChart width={600} height={400} margin={{top: 20, right: 20, bottom: 20, left: 20}}>
+                <ScatterChart width={400} height={300} margin={{top: 20, right: 20, bottom: 20, left: 20}}>
                   <XAxis type="number" dataKey={'x'} name='Tiempo de espera' unit='Min'/>
                 	<YAxis type="number" dataKey={'y'} name='Calificación' unit=':)'/>
                   <ZAxis range={[100]}/>
                 	<Tooltip cursor={{strokeDasharray: '3 3'}}/>
                   <Legend/>
-                	<Scatter name='A school' data={this.state.data01} fill='#8884d8' line/>
-                  <Scatter name='B school' data={this.state.data02} fill='#82ca9d'/>
+                	<Scatter name='Regresión lineal' data={this.state.data01} fill='#8884d8' line/>
+                  <Scatter name='Datos' data={this.state.data02} fill='#82ca9d'/>
                 </ScatterChart>
               </CardHeader>
               <CardBody>
-                <h4 className={classes.cardTitle}>Gender distribution</h4>
+                <h4 className={classes.cardTitle}> Regresión lineal entre el tiempo de espera y la calificación actual </h4>
                 <p className={classes.cardCategory}>
-                  Udated in the last 5 minutes
+                  Intersecto y = -2.09
+                </p>
+                <p className={classes.cardCategory}>
+                  Pendiente y = 1.52
                 </p>
               </CardBody>
               <CardFooter chart>
