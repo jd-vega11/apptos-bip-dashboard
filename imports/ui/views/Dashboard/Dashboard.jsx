@@ -292,7 +292,7 @@ class Dashboard extends React.Component {
       // Stop listening to changes
       unsubscribePickUpServices();
     }
-    
+
 
   }
 
@@ -523,7 +523,7 @@ class Dashboard extends React.Component {
               <CardHeader color="info">
                 <ScatterChart width={400} height={300} margin={{top: 20, right: 20, bottom: 20, left: 20}}>
                   <XAxis type="number" dataKey={'x'} name='Tiempo de espera' unit='Min'/>
-                	<YAxis type="number" dataKey={'y'} name='Calificación' unit=':)'/>
+                	<YAxis type="number" dataKey={'y'} name='Calificación' unit='😁'/>
                   <ZAxis range={[100]}/>
                 	<Tooltip cursor={{strokeDasharray: '3 3'}}/>
                   <Legend/>
@@ -532,12 +532,12 @@ class Dashboard extends React.Component {
                 </ScatterChart>
               </CardHeader>
               <CardBody>
-                <h4 className={classes.cardTitle}> Regresión lineal entre el tiempo de espera y la calificación actual </h4>
+                <h4 className={classes.cardTitle}> Linear regression between rating and waiting time </h4>
                 <p className={classes.cardCategory}>
-                  Intersecto y = -2.09
+                  y intersept y = -2.09
                 </p>
                 <p className={classes.cardCategory}>
-                  Pendiente y = 1.52
+                  Slope = 1.52
                 </p>
               </CardBody>
               <CardFooter chart>
