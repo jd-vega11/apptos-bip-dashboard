@@ -198,14 +198,14 @@ class Dashboard extends React.Component {
 
             me.setState({clients: clients, valets:valets, averageAge:data, genders: genders});
 
-            me.calcularRegresion().bind(this)
+            me.calcularRegresion()
 
 
         });
 
     this.db.collection("PickUpServices")
         .onSnapshot(function(querySnapshot) {
-            
+
             var activeServices = 0;
             var clientsWaiting = 0;
             querySnapshot.forEach(function(doc) {
@@ -218,7 +218,7 @@ class Dashboard extends React.Component {
               {
                 clientsWaiting = clientsWaiting + 1;
               }
-                
+
             });
             me.setState({activeServices:activeServices,clientsWaiting:clientsWaiting})
         });
