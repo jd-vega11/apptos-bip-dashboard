@@ -46,7 +46,7 @@ function Header({ ...props }) {
             </Button>
           </div>
           <Hidden smDown implementation="css">
-            <HeaderLinks />
+            <HeaderLinksUnauthorized />
           </Hidden>
           <Hidden mdUp implementation="css">
             <IconButton
@@ -86,7 +86,7 @@ function Header({ ...props }) {
       </AppBar>
     );
   }
-  
+
 }
 
 Header.propTypes = {

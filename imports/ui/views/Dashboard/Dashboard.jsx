@@ -523,7 +523,7 @@ class Dashboard extends React.Component {
               <CardHeader color="info">
                 <ScatterChart width={400} height={300} margin={{top: 20, right: 20, bottom: 20, left: 20}}>
                   <XAxis type="number" dataKey={'x'} name='Tiempo de espera' unit='Min'/>
-                	<YAxis type="number" dataKey={'y'} name='Calificación' unit='😁'/>
+                	<YAxis type="number" dataKey={'y'} name='Calificación' unit=' 😁'/>
                   <ZAxis range={[100]}/>
                 	<Tooltip cursor={{strokeDasharray: '3 3'}}/>
                   <Legend/>
