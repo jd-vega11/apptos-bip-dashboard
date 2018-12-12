@@ -183,58 +183,25 @@ class Dashboard extends React.Component {
             ];
 
             me.setState({clients: clients, valets:valets, averageAge:data, genders: genders});
-            
-            
         });
 
     this.db.collection("PickUpServices")
-        .onSnapshot(function(snapshot) {
+        .onSnapshot(function(querySnapshot) {
+            
+            var activeServices = 0;
+            var clientsWaiting = 0;
+            querySnapshot.forEach(function(doc) {
+              if(!doc.data().approved)
+              {
+                activeServices = activeServices + 1;
+              }
 
-            var activeServices = me.state.activeServices;
-            var clientsWaiting = me.state.clientsWaiting;
-            snapshot.docChanges().forEach(function(change) {
-                if (change.type === "added") {
-
-                    if(!change.doc.data().approved)
-                    {
-                      activeServices = activeServices + 1;
-                    }
-
-                    if(!change.doc.data().confirmed)
-                    {
-                      clientsWaiting = clientsWaiting + 1;
-                    }
-                    console.log("New req: ", change.doc.data());
-                }
-                if (change.type === "modified") {
-
-                    if(change.doc.data().approved)
-                    {
-                      activeServices = activeServices - 1;
-                    }
-
-                    if(change.doc.data().confirmed)
-                    {
-                      clientsWaiting = clientsWaiting - 1;
-                    }
-                    console.log("New req: ", change.doc.data());
-
-                    console.log("Modified req: ", change.doc.data());
-                }
-                if (change.type === "removed") {
-                    if(!change.doc.data().confirmed)
-                    {
-                      clientsWaiting = clientsWaiting - 1;
-                    }
-
-                    if(!change.doc.data().approved)
-                    {
-                      activeServices = activeServices - 1;
-                    }
-                    console.log("Removed req: ", change.doc.data());
-                }
+              if(!doc.data().confirmed)
+              {
+                clientsWaiting = clientsWaiting + 1;
+              }
+                
             });
-
             me.setState({activeServices:activeServices,clientsWaiting:clientsWaiting})
         });
   /*
