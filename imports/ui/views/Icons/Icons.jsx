@@ -28,6 +28,8 @@ class Icons extends Component
 
     this.createUser = this.createUser.bind(this);
     this.storeUser = this.storeUser.bind(this);
+    this.createMultipleRequest = this.createMultipleRequest.bind(this);
+    this.createRequest = this.createRequest.bind(this);
 
   }
 
@@ -109,28 +111,79 @@ class Icons extends Component
 
   }
 
+  createMultipleRequest()
+  {
+    var i;
+    for (i = 0; i < 30; i++) 
+    {
+      createRequest();
+    } 
+  }
+
   createRequest( )
   {
     // Add a new document with a generated id.
+    const creationTime = Math.floor(Math.random() * (1544631071000 - 1543688411000)) + 1543688411000;
+    const base = Math.random();
+    const espera =  Math.floor(base * (300000 - 60000)) + 60000;
+    const confirmationTime = creationTime + espera;
+    const estimatedFare = Math.floor(Math.random() * (27000 - 8000)) + 8000;
+    const latitudeClient = Math.random() * (4.700900981824714 - 4.600900981824714) + 4.600900981824714;
+    const longitudeClient =  (Math.random() * (74.07764720068894 - 74.06764720068894) + 74.06764720068894)*-1;
+    const latitudeValet = Math.random() * (4.700900981824714 - 4.600900981824714) + 4.600900981824714;
+    const longitudeValet = (Math.random() * (74.07764720068894 - 74.06764720068894) + 74.06764720068894)*-1;
+    const parkLatitude = Math.random() * (4.700900981824714 - 4.600900981824714) + 4.600900981824714;
+    const parkLongitude = (Math.random() * (74.07764720068894 - 74.06764720068894) + 74.06764720068894)*-1;
+
+
+    const valetRating =  Math.floor(base* 5);
+
+
     this.db.collection("PickUpServices").add({
         approved: true,
         carParked: true,
-        confirmationTime:0,
+        confirmationTime:confirmationTime,
         confirmed: true,
-        creationTime: 0,
-        estimatedFare: 0,
-        idClient:"id",
-        idValet:"id",
-        latitudeClient:0,
-        latitudeValet:0,
-        longitudeClient:0,
-        longitudeValet:0,
-        parkLatitude:0,
-        parkLongitude:0,
-        plate:"HLO",
+        creationTime: creationTime,
+        estimatedFare: estimatedFare,
+        idClient:"8LijTfdrGSfXtbBfcN4wfaNhf0r2",
+        idValet:"kmp45LpE8MTnLy5YRvUw8EDUTor2",
+        latitudeClient:latitudeClient,
+        latitudeValet:latitudeValet,
+        longitudeClient:longitudeClient,
+        longitudeValet:longitudeValet,
+        parkLatitude:parkLatitude,
+        parkLongitude:parkLongitude,
+        plate:"ABC123",
+        qr:"kjsafkjlfa",
+        validated: true
+    })
+    .then(function(docRef) {
+        console.log("Document written with ID: ", docRef.id);
+    })
+    .catch(function(error) {
+        console.error("Error adding document: ", error);
+    });
+
+      this.db.collection("DropOffServices").add({
+        approved: true,
+        carParked: true,
+        confirmationTime:confirmationTime,
+        confirmed: true,
+        creationTime: creationTime,
+        estimatedFare: estimatedFare,
+        idClient:"8LijTfdrGSfXtbBfcN4wfaNhf0r2",
+        idValet:"kmp45LpE8MTnLy5YRvUw8EDUTor2",
+        latitudeClient:latitudeClient,
+        latitudeValet:latitudeValet,
+        longitudeClient:longitudeClient,
+        longitudeValet:longitudeValet,
+        parkLatitude:parkLatitude,
+        parkLongitude:parkLongitude,
+        plate:"ABC123",
         qr:"kjsafkjlfa",
         validated: true,
-        valetRating:0
+        valetRating: valetRating
     })
     .then(function(docRef) {
         console.log("Document written with ID: ", docRef.id);
@@ -167,7 +220,7 @@ class Icons extends Component
     return (
       <GridContainer>
         <GridItem xs={12} sm={12} md={12}>
-          <button className="btn btn-primary" onClick={() => this.createUser(2)}> Agregar usuario</button>
+          <button className="btn btn-primary" onClick={() => this.createMultipleRequest()}> Agregar usuario</button>
 
         </GridItem>
       </GridContainer>
