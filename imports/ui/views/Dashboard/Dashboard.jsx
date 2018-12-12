@@ -527,8 +527,8 @@ class Dashboard extends React.Component {
                   <ZAxis range={[100]}/>
                 	<Tooltip cursor={{strokeDasharray: '3 3'}}/>
                   <Legend/>
-                	<Scatter name='Regresión lineal' data={this.state.data01} fill='#8884d8' line/>
-                  <Scatter name='Datos' data={this.state.data02} fill='#82ca9d'/>
+                	<Scatter name='Linear Regression' data={this.state.data01} fill='#8884d8' line/>
+                  <Scatter name='Data' data={this.state.data02} fill='#82ca9d'/>
                 </ScatterChart>
               </CardHeader>
               <CardBody>
