@@ -67,6 +67,8 @@ class Dashboard extends React.Component {
       clientsWaiting:0,
       averageAge: averageAge.data,
       genders: [],
+      ratings:[],
+      waitingTimes:[],
       data01 : [{x: 10, y: 30}, {x: 100, y: 200}],
       data02 : [{x: 30, y: 20}, {x: 50, y: 180}, {x: 75, y: 240}, {x: 100, y: 100}, {x: 120, y: 190}]
     };
@@ -198,7 +200,7 @@ class Dashboard extends React.Component {
 
             me.setState({clients: clients, valets:valets, averageAge:data, genders: genders});
 
-            me.calcularRegresion().bind(this)
+            me.calcularRegresion().bind(this);
 
 
         });
@@ -221,6 +223,29 @@ class Dashboard extends React.Component {
                 
             });
             me.setState({activeServices:activeServices,clientsWaiting:clientsWaiting})
+        });
+
+    this.db.collection("DropOffServices")
+        .onSnapshot(function(querySnapshot) {
+            
+            var ratings = [];
+            var waitingTimes = [];
+
+            querySnapshot.forEach(function(doc) {
+
+              if(doc.data().valetRating !== undefined  && typeof doc.data().confirmationTime == 'number'  && typeof doc.data().creationTime == 'number'
+                && doc.data().confirmationTime !== 0 && doc.data().creationTime !== 0)
+              {
+                ratings.push(doc.data().valetRating);
+                waitingTimes.push(Math.round(doc.data().confirmationTime) - Math.round(doc.data().creationTime));
+              }
+             
+                
+            });
+          me.setState({ratings:ratings, waitingTimes:waitingTimes});
+          console.log("ratings", ratings);
+          console.log("waitingTimes", waitingTimes);
+
         });
   /*
     // Initialize Cloud Firestore through Firebase
