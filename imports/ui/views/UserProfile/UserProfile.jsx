@@ -1,4 +1,4 @@
-import React from "react";
+import React, {Component} from 'react';
 // @material-ui/core components
 import withStyles from "@material-ui/core/styles/withStyles";
 import InputLabel from "@material-ui/core/InputLabel";
@@ -34,145 +34,223 @@ const styles = {
   }
 };
 
-function UserProfile(props) {
-  const { classes } = props;
-  return (
-    <div>
+
+import firebase from 'firebase/app';
+import 'firebase/firestore';
+import 'firebase/auth'
+
+class UserProfile extends Component 
+{
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+    };
+
+
+    this.createUser = this.createUser.bind(this);
+    this.storeUser = this.storeUser.bind(this);
+    this.createMultipleRequest = this.createMultipleRequest.bind(this);
+    this.createRequest = this.createRequest.bind(this);
+
+  }
+
+  createUser(i)
+  {
+
+    if(i > 200) return;
+
+
+    const email="test"+i+"@client.com";
+    const password="123456";
+
+    const me = this;
+    firebase.auth().createUserWithEmailAndPassword(email, password)
+    .then(function(userRef){
+
+      console.log("userRef", userRef);
+
+      const user = firebase.auth().currentUser;
+      me.storeUser(email, user.uid, i);
+
+    })
+    .catch(function(error) {
+      console.log("error creating user", error);
+      console.log("error message", error.message);
+      console.log("error code", error.code);
+    });    
+
+  }
+
+  storeUser(email, id, i)
+  {
+    const me = this;
+    const womanNames = ["Ana", "Maria", "Beatriz", "Sandra", "Rosa"];
+    const manNames = ["Mario", "Pedro", "Esteban", "Felipe", "Jose"];
+    const lastNames = ["Perez", "Ramirez", "Hernandez", "Linares", "Navas", "Laserna", "Laverde", "Rodriguez"];
+    const genderN = Math.random();
+
+    var gender = "Male";
+    var name = manNames[Math.floor(Math.random() * 5)];
+    if(genderN >= 0.5){
+
+     gender = "Female";
+     name=womanNames[Math.floor(Math.random() * 5)];
+
+    }
+
+    const lastName = lastNames[Math.floor(Math.random() * 8)];
+
+    this.db.collection("Users").doc(id).set({
+        age:  Math.floor(Math.random() * (50 - 19)) + 19,
+        client: true,
+        email: email,
+        gender: gender,
+        lastName: lastName,
+        name: name,
+        phone: "3101171825"
+    })
+    .then(function() {
+        console.log("Document successfully written!");
+        firebase.auth().signOut().then(function() {
+
+          console.log("successfully signed out");
+
+          i = i+1;
+
+          me.createUser(i);
+
+
+        }).catch(function(error) {
+
+          console.log("error with sign out", error);
+          
+        });
+    })
+    .catch(function(error) {
+        console.error("Error writing document: ", error);
+    });
+
+  }
+
+  createMultipleRequest()
+  {
+    var i;
+    for (i = 0; i < 20; i++) 
+    {
+      this.createRequest();
+    } 
+  }
+
+  createRequest( )
+  {
+    // Add a new document with a generated id.
+    const creationTime = Math.floor(Math.random() * (1544631071000 - 1543688411000)) + 1543688411000;
+    const base = Math.random();
+    const espera =  Math.floor(base * (300000 - 60000)) + 60000;
+    const confirmationTime = creationTime + espera;
+    const estimatedFare = Math.floor(Math.random() * (27000 - 8000)) + 8000;
+    const latitudeClient = Math.random() * (4.700900981824714 - 4.600900981824714) + 4.600900981824714;
+    const longitudeClient =  (Math.random() * (74.07764720068894 - 74.06764720068894) + 74.06764720068894)*-1;
+    const latitudeValet = Math.random() * (4.700900981824714 - 4.600900981824714) + 4.600900981824714;
+    const longitudeValet = (Math.random() * (74.07764720068894 - 74.06764720068894) + 74.06764720068894)*-1;
+    const parkLatitude = Math.random() * (4.700900981824714 - 4.600900981824714) + 4.600900981824714;
+    const parkLongitude = (Math.random() * (74.07764720068894 - 74.06764720068894) + 74.06764720068894)*-1;
+
+
+    const valetRating =  Math.floor(base* 6);
+
+
+    this.db.collection("PickUpServices").add({
+        approved: true,
+        carParked: true,
+        confirmationTime:confirmationTime,
+        confirmed: true,
+        creationTime: creationTime,
+        estimatedFare: estimatedFare,
+        idClient:"oVJjOspUVgO8qaX2MYzU5QG8E6q1",
+        idValet:"eb1aavHOx6ORJRKqtbvdSbg37uk1",
+        latitudeClient:latitudeClient,
+        latitudeValet:latitudeValet,
+        longitudeClient:longitudeClient,
+        longitudeValet:longitudeValet,
+        parkLatitude:parkLatitude,
+        parkLongitude:parkLongitude,
+        plate:"ABC123",
+        qr:"kjsafkjlfa",
+        validated: true
+    })
+    .then(function(docRef) {
+        console.log("Document written with ID: ", docRef.id);
+    })
+    .catch(function(error) {
+        console.error("Error adding document: ", error);
+    });
+
+      this.db.collection("DropOffServices").add({
+        approved: true,
+        carParked: true,
+        confirmationTime:confirmationTime,
+        confirmed: true,
+        creationTime: creationTime,
+        estimatedFare: estimatedFare,
+        idClient:"oVJjOspUVgO8qaX2MYzU5QG8E6q1",
+        idValet:"eb1aavHOx6ORJRKqtbvdSbg37uk1",
+        latitudeClient:latitudeClient,
+        latitudeValet:latitudeValet,
+        longitudeClient:longitudeClient,
+        longitudeValet:longitudeValet,
+        parkLatitude:parkLatitude,
+        parkLongitude:parkLongitude,
+        plate:"ABC123",
+        qr:"kjsafkjlfa",
+        validated: true,
+        valetRating: valetRating
+    })
+    .then(function(docRef) {
+        console.log("Document written with ID: ", docRef.id);
+    })
+    .catch(function(error) {
+        console.error("Error adding document: ", error);
+    });
+  }
+
+  componentDidMount()
+  {
+    var config = {
+      apiKey: "AIzaSyCcceQjxBOA2-oG4CJzzDADBaVajmfq_1g",
+      authDomain: "bipapp-mobile-dev.firebaseapp.com",
+      databaseURL: "https://bipapp-mobile-dev.firebaseio.com",
+      projectId: "bipapp-mobile-dev",
+      storageBucket: "bipapp-mobile-dev.appspot.com",
+      messagingSenderId: "138636836135"
+    };
+     if (!firebase.apps.length) {
+        firebase.initializeApp(config);
+    }
+
+    this.db = firebase.firestore();
+/*
+    // Initialize Cloud Firestore through Firebase
+   
+
+    // Disable deprecated features
+    db.settings({
+      timestampsInSnapshots: true
+    });*/
+  }
+
+  render() {
+    return (
       <GridContainer>
-        <GridItem xs={12} sm={12} md={8}>
-          <Card>
-            <CardHeader color="primary">
-              <h4 className={classes.cardTitleWhite}>Edit Profile</h4>
-              <p className={classes.cardCategoryWhite}>Complete your profile</p>
-            </CardHeader>
-            <CardBody>
-              <GridContainer>
-                <GridItem xs={12} sm={12} md={5}>
-                  <CustomInput
-                    labelText="Company (disabled)"
-                    id="company-disabled"
-                    formControlProps={{
-                      fullWidth: true
-                    }}
-                    inputProps={{
-                      disabled: true
-                    }}
-                  />
-                </GridItem>
-                <GridItem xs={12} sm={12} md={3}>
-                  <CustomInput
-                    labelText="Username"
-                    id="username"
-                    formControlProps={{
-                      fullWidth: true
-                    }}
-                  />
-                </GridItem>
-                <GridItem xs={12} sm={12} md={4}>
-                  <CustomInput
-                    labelText="Email address"
-                    id="email-address"
-                    formControlProps={{
-                      fullWidth: true
-                    }}
-                  />
-                </GridItem>
-              </GridContainer>
-              <GridContainer>
-                <GridItem xs={12} sm={12} md={6}>
-                  <CustomInput
-                    labelText="First Name"
-                    id="first-name"
-                    formControlProps={{
-                      fullWidth: true
-                    }}
-                  />
-                </GridItem>
-                <GridItem xs={12} sm={12} md={6}>
-                  <CustomInput
-                    labelText="Last Name"
-                    id="last-name"
-                    formControlProps={{
-                      fullWidth: true
-                    }}
-                  />
-                </GridItem>
-              </GridContainer>
-              <GridContainer>
-                <GridItem xs={12} sm={12} md={4}>
-                  <CustomInput
-                    labelText="City"
-                    id="city"
-                    formControlProps={{
-                      fullWidth: true
-                    }}
-                  />
-                </GridItem>
-                <GridItem xs={12} sm={12} md={4}>
-                  <CustomInput
-                    labelText="Country"
-                    id="country"
-                    formControlProps={{
-                      fullWidth: true
-                    }}
-                  />
-                </GridItem>
-                <GridItem xs={12} sm={12} md={4}>
-                  <CustomInput
-                    labelText="Postal Code"
-                    id="postal-code"
-                    formControlProps={{
-                      fullWidth: true
-                    }}
-                  />
-                </GridItem>
-              </GridContainer>
-              <GridContainer>
-                <GridItem xs={12} sm={12} md={12}>
-                  <InputLabel style={{ color: "#AAAAAA" }}>About me</InputLabel>
-                  <CustomInput
-                    labelText="Lamborghini Mercy, Your chick she so thirsty, I'm in that two seat Lambo."
-                    id="about-me"
-                    formControlProps={{
-                      fullWidth: true
-                    }}
-                    inputProps={{
-                      multiline: true,
-                      rows: 5
-                    }}
-                  />
-                </GridItem>
-              </GridContainer>
-            </CardBody>
-            <CardFooter>
-              <Button color="primary">Update Profile</Button>
-            </CardFooter>
-          </Card>
-        </GridItem>
-        <GridItem xs={12} sm={12} md={4}>
-          <Card profile>
-            <CardAvatar profile>
-              <a href="#pablo" onClick={e => e.preventDefault()}>
-                <img src="../../assets/img/faces/marc.jpg" alt="..." />
-              </a>
-            </CardAvatar>
-            <CardBody profile>
-              <h6 className={classes.cardCategory}>CEO / CO-FOUNDER</h6>
-              <h4 className={classes.cardTitle}>Alec Thompson</h4>
-              <p className={classes.description}>
-                Don't be scared of the truth because we need to restart the
-                human foundation in truth And I love you like Kanye loves Kanye
-                I love Rick Owens’ bed design but the back is...
-              </p>
-              <Button color="primary" round>
-                Follow
-              </Button>
-            </CardBody>
-          </Card>
+        <GridItem xs={12} sm={12} md={12}>
+          <button className="btn btn-primary" onClick={() => this.createMultipleRequest()}> Agregar usuario</button>
+
         </GridItem>
       </GridContainer>
-    </div>
-  );
+    );
+  }
 }
 
 export default withStyles(styles)(UserProfile);
